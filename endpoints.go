@@ -1,9 +1,9 @@
-package core
+package main
 
 import (
-	"./../handlers/sys"
-	"./../handlers/player"
-	"./../handlers/market"
+	"./handlers/sys"
+	"./handlers/player"
+	"./handlers/market"
 	"net/http"
 	"fmt"
 )
