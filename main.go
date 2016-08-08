@@ -43,7 +43,7 @@ func main() {
 	logger.Info("Staring up HTTP Server...")
 
 	http.HandleFunc("/authenticate", Auth)
-	/*http.HandleFunc("/terminal/", Terminal)
+	/*http.HandleFunc("/terminal/new", NewTerminal)
 	http.HandleFunc("/terminal/destroy", DestroyTermial)
 	http.HandleFunc("/terminal/status", TerminalStatus)
 	http.HandleFunc("/terminal/owner", TerminalOwner)
