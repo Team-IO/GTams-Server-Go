@@ -11,7 +11,7 @@ import (
 var db *sql.DB
 var installations map[uuid.UUID]entities.Installation
 
-var statements [20]*sql.Stmt
+var statements []*sql.Stmt
 
 var insertInstallation *sql.Stmt
 var updateInstallation *sql.Stmt
@@ -66,9 +66,11 @@ func prepareStatements() {
 	selectInstallationUUID = statement("SELECT uuid FROM installation WHERE uuid=?")
 }
 
-func GetInstallation(id uuid.UUID, allFields bool) entities.Installation {
-	installation := installations[id]
-	if installation == nil {
+func GetInstallation(id uuid.UUID, allFields bool) (entities.Installation, bool) {
+	installation, ok := installations[id]
+	if ok {
+		return installation, true
+	} else {
 		var stmt *sql.Stmt
 		if allFields {
 			stmt = selectInstallation
@@ -91,13 +93,13 @@ func GetInstallation(id uuid.UUID, allFields bool) entities.Installation {
 			// Cache it
 			installations[id] = installation
 			// Yes, this returns an installation entity with only an id -> not nil as in "installation exists"
-			return installation
+			return installation, true
 		}
+		return installation, false
 	}
-	return nil
 }
 
-func insertInstallation(installation entities.Installation) {
+func doInsertInstallation(installation entities.Installation) {
 	_, err := insertInstallation.Exec(installation.Id, installation.Version, installation.McVersion, installation.Branding, installation.Language)
 
 	if err != nil {
@@ -108,7 +110,7 @@ func insertInstallation(installation entities.Installation) {
 	installations[installation.Id] = installation
 }
 
-func updateInstallation(installation entities.Installation) {
+func doUpdateInstallation(installation entities.Installation) {
 	_, err := updateInstallation.Exec(installation.Version, installation.McVersion, installation.Branding, installation.Language, installation.Id)
 
 	if err != nil {
@@ -119,25 +121,27 @@ func updateInstallation(installation entities.Installation) {
 	installations[installation.Id] = installation
 }
 
-// If installation information is given, it will be checked if that info is in the DB & will update the timestamp.
-// If no information is given or the info is not yet in the db a new id will be generated & stored in DB.
+// Given installation info will be checked if it is in the DB & will update the timestamp.
+// If the info is not yet in the db a new id will be generated & stored in DB.
 func PingInstallation(installation entities.Installation) uuid.UUID {
-	if installation == nil {
-		// New installation with blank values & new ID
-		installation = entities.Installation {
-			Id: uuid.NewV4(),
-		}
-		insertInstallation(installation)
+	_, found := GetInstallation(installation.Id, false)
+	if !found {
+		installation.Id = uuid.NewV4()
+		doInsertInstallation(installation)
 	} else {
-		inDatabase := GetInstallation(installation.Id, false)
-		if inDatabase == nil {
-			installation.Id = uuid.NewV4()
-			insertInstallation(installation)
-		} else {
-			// Always save, if only to update the timestamp
-			updateInstallation(installation)
-		}
+		// Always save, if only to update the timestamp
+		doUpdateInstallation(installation)
 	}
+	return installation.Id
+}
+
+// A new ID will be generated & inserted into the DB
+func PingNewInstallation() uuid.UUID {
+	// New installation with blank values & new ID
+	installation := entities.Installation {
+		Id: uuid.NewV4(),
+	}
+	doInsertInstallation(installation)
 	return installation.Id
 }
 

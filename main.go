@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"./core"
 	"./datastore"
+
+	"./endpoints"
 )
 
 func main() {
@@ -18,7 +20,7 @@ func main() {
 	defer datastore.CloseDatastore()
 
 	core.Logger.Info("Staring up HTTP Server...")
-	core.GenEndpoints(1)
+	endpoints.GenEndpoints(1)
 	core.Logger.Info("HTTP Server started...")
 
 	http.ListenAndServe(":60405", nil)

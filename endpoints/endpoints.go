@@ -1,9 +1,10 @@
-package main
+package endpoints
 
 import (
-	"./handlers/sys"
-	"./handlers/player"
-	"./handlers/market"
+	"../handlers/sys"
+	"../handlers/player"
+	"../handlers/market"
+	"../handlers/terminal"
 	"net/http"
 	"fmt"
 )
