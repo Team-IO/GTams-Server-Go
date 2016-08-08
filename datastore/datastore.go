@@ -88,6 +88,8 @@ func GetInstallation(id uuid.UUID, allFields bool) entities.Installation {
 			if allFields {
 				err = rows.Scan(&installation.LastSeen, &installation.Version, &installation.McVersion, &installation.Branding, & installation.Language)
 			}
+			// Cache it
+			installations[id] = installation
 			// Yes, this returns an installation entity with only an id -> not nil as in "installation exists"
 			return installation
 		}
@@ -102,6 +104,8 @@ func insertInstallation(installation entities.Installation) {
 		core.Logger.Error("Error inserting installation in DB: %v", err.Error())
 		panic(err.Error())
 	}
+	// Cache it
+	installations[installation.Id] = installation
 }
 
 func updateInstallation(installation entities.Installation) {
@@ -111,6 +115,8 @@ func updateInstallation(installation entities.Installation) {
 		core.Logger.Error("Error updating installation in DB: %v", err.Error())
 		panic(err.Error())
 	}
+	// Cache it
+	installations[installation.Id] = installation
 }
 
 // If installation information is given, it will be checked if that info is in the DB & will update the timestamp.
