@@ -7,11 +7,10 @@ import (
 	"net/http"
 	"io"
 	"github.com/satori/go.uuid"
-	"github.com/go-ozzo/ozzo-log"
 	"encoding/json"
+	"./core"
 )
 
-var logger = log.NewLogger()
 var db, err = sql.Open("mysql", "gtams:gtams@/GTams")
 
 type EAuthenticate struct {
@@ -20,16 +19,10 @@ type EAuthenticate struct {
 
 func main() {
 
-	targetLogFile := log.NewFileTarget()
-	targetLogConsole := log.NewConsoleTarget()
-	targetLogFile.FileName = "GTams-Server.log"
-	targetLogFile.BackupCount = 2
-	//targetLogConsole.MaxLevel = log.LevelError
-	targetLogConsole.ColorMode = true
-	logger.Targets = append(logger.Targets, targetLogConsole, targetLogFile)
+	core.InitLogging()
 
-	logger.Open()
-	defer logger.Close()
+	core.Logger.Open()
+	defer core.Logger.Close()
 
 	if err != nil {
 		panic(err.Error())
@@ -40,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	logger.Info("Staring up HTTP Server...")
+	core.Logger.Info("Staring up HTTP Server...")
 
 	http.HandleFunc("/authenticate", Auth)
 	/*http.HandleFunc("/terminal/new", NewTerminal)
@@ -59,7 +52,7 @@ func main() {
 	http.HandleFunc("/player/status",  PlayerStatus)
 	http.HandleFunc("/market/query",  MarketInfo)*/
 
-	logger.Info("HTTP Server started...")
+	core.Logger.Info("HTTP Server started...")
 
 	http.ListenAndServe(":60405", nil)
 
