@@ -13,5 +13,5 @@ func InitLogging() {
 	targetLogFile.BackupCount = 2
 	//targetLogConsole.MaxLevel = log.LevelError
 	targetLogConsole.ColorMode = true
-	logger.Targets = append(logger.Targets, targetLogConsole, targetLogFile)
+	Logger.Targets = append(Logger.Targets, targetLogConsole, targetLogFile)
 }
