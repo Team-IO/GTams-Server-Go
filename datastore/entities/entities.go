@@ -4,6 +4,7 @@ import "github.com/satori/go.uuid"
 
 type Installation struct {
 	Id uuid.UUID
+	LastSeen int64
 	Version string
 	McVersion string
 	Branding string

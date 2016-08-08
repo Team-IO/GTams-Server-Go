@@ -1,15 +1,10 @@
 package main
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"database/sql"
 	"net/http"
 	"./core"
+	"./datastore"
 )
-
-var db, err = sql.Open("mysql", "gtams:gtams@/GTams")
-
-
 
 func main() {
 
@@ -17,16 +12,11 @@ func main() {
 
 	core.Logger.Open()
 	defer core.Logger.Close()
+	core.Logger.Info("Staring up HTTP Server...")
 
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
+	datastore.InitDatastore()
+	defer datastore.CloseDatastore()
 
-	err = db.Ping()
-	if err != nil {
-		panic(err.Error())
-	}
 	core.Logger.Info("Staring up HTTP Server...")
 	core.GenEndpoints(1)
 	core.Logger.Info("HTTP Server started...")
@@ -34,6 +24,3 @@ func main() {
 	http.ListenAndServe(":60405", nil)
 
 }
-
-
-
